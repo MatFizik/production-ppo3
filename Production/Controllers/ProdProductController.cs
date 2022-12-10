@@ -37,16 +37,37 @@ public class ProdProductController : Controller
         {
             using (ProdDbContext context = new ProdDbContext())
             {
+                List<Ingredient> ingredients = new List<Ingredient>();
+                ingredients = context.Ingredients.Where(x => x.ReadyProductId == product.ProductId).ToList();
+                
+                
+
+                foreach (var ing in ingredients)
+                {
+                    Feedstock feedstocks = context.Feedstocks.Find(ing.FeedstockId);
+                    if ((product.Count * ing.Count) > feedstocks.Count)
+                    {
+                        answer.status = 411;
+                        answer.text = "Недостаточно материала на складе!";
+                        return BadRequest(answer);
+                    }
+                    else
+                    {
+                        feedstocks.Count = feedstocks.Count - (product.Count * ing.Count);
+                    }
+                }
+                ReadyProduct readyProduct = context.ReadyProducts.Find(product.ProductId);
+                readyProduct.Count = readyProduct.Count + product.Count;
                 context.ProdProducts.Add(product);
                 context.SaveChanges();
             }
-            answer.status = "200";
+            answer.status = 200;
             answer.text = "Успешно!";
             return Ok(answer);
         }
         catch (Exception exception)
         {
-            answer.status = "400";
+            answer.status = 400;
             answer.text = "Ошибка!";
             return BadRequest(answer);
         }
@@ -57,7 +78,7 @@ public class ProdProductController : Controller
     {
         using (ProdDbContext context = new ProdDbContext())
         {
-            List<ProdProduct> result = await context.ProdProducts.FromSql($"SSale {model.date1}, {model.date2}").ToListAsync();
+            List<ProdProduct> result = await context.ProdProducts.FromSql($"PProd {model.date1}, {model.date2}").ToListAsync();
             return Ok(result);
         }
     }

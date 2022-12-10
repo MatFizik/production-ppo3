@@ -65,6 +65,7 @@ const App = () => {
             feedstock : record.feedstock,
             count : record.count,
         }
+        console.log(record);
         setRowData(newRow);
         showModalEdit();
     };
@@ -79,6 +80,7 @@ const App = () => {
     
 
     const NewData = (values) => {
+        console.log(values);
         OperationObj = {
             Id: RowData.Id,
             readyProductId : values.product,
@@ -87,40 +89,52 @@ const App = () => {
         }
         setOperationIng(OperationObj);
     }
+    const NewDataEdit = (values) => {
+        console.log(values);
+        OperationObj = {
+            Id: RowData.Id,
+            readyProductId : values.product,
+            feedstockId : values.feedstock,
+            count : values.count,
+        }
+        console.log(RowData.product);
+        setOperationIng(OperationObj);
+    }
     const showModal = () => {
         setOpen(true);
     };
-    const handleOk = () => {
+    const handleOk = async () => {
         setConfirmLoading(true);
         setTimeout(() => {
             setOpen(false);
             setConfirmLoading(false);
         }, 2000);
-        fetch("https://localhost:7171/Ingridient/AddIngridient",
+        await fetch("https://localhost:7171/Ingridient/AddIngridient",
             {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json;charset=utf-8',
                 },
                 body: JSON.stringify(OperationIng)
-            }).then(window.location.reload())
+            })
+        window.location.reload()
     };
 
-    const handleOkEdit = () => {
-        console.log(OperationIng)
+    const handleOkEdit = async () => {
         setConfirmLoadingEdit(true);
         setTimeout(() => {
             setOpenEdit(false);
             setConfirmLoadingEdit(false);
         }, 2000);
-        fetch("https://localhost:7171/Ingridient/EditIng",
+        await fetch("https://localhost:7171/Ingridient/EditIng",
             {
                 method: 'POST',
                 headers:{
                     'Content-Type': 'application/json;charset=utf-8',
                 },
                 body: JSON.stringify(OperationIng)
-            }).then(window.location.reload())
+            })
+            window.location.reload();
     };
     
     const handleCancel = () => {
@@ -219,7 +233,7 @@ const App = () => {
                 dataSource={IngridientData}
             />
             <Button type="primary" id={"before-footer"} onClick={showModal}>
-                Добавить сырье
+                Добавить составную часть
             </Button>
                 </>
             }
@@ -237,6 +251,7 @@ const App = () => {
                           span: 14,
                       }}
                       onValuesChange={(changedValues, values) => NewData(values)}
+                      
                 >
                     <Form.Item label={"Продукт"} name="product">
                         <Select  options={ProductData}>
@@ -266,7 +281,7 @@ const App = () => {
                               span: 14,
                           }}
                           initialValues={RowData}
-                          onValuesChange={(changedValues, values) => NewData(values)}
+                          onValuesChange={(changedValues, values) => NewDataEdit(values)}
                     >
                         <Form.Item label={"Продукт"} name="product">
                             <Select  options={ProductData}>

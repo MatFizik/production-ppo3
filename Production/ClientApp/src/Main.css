@@ -43,12 +43,12 @@ a.nav-link:hover{
     background-color:#96A365 !important;
     color: #333 !important;
     transition: 0.1s;
-    border-radius: 25% 25% 0 0;
+    /*border-radius: 25% 25% 0 0;*/
 }
 a.nav-link:focus{
     background-color:#96A365 !important;
     color: #333 !important;
-    border-radius: 35% 35% 0 0 !important;
+    /*border-radius: 35% 35% 0 0 !important;*/
     transition: 0.8s;
     font-weight: 500;
 }

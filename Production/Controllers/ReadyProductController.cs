@@ -62,13 +62,13 @@ namespace Production.Controllers
                     context.ReadyProducts.Add(model);
                     context.SaveChanges();
                 }
-                answer.status = "200";
+                answer.status = 200;
                 answer.text = "Успешно!";
                 return Ok(answer);
             }
             catch (Exception exception)
             {
-                answer.status = "400";
+                answer.status = 400;
                 answer.text = "Ошибка!";
                 return BadRequest(answer);
             }
@@ -97,13 +97,13 @@ namespace Production.Controllers
 
                     context.SaveChanges();
                 }
-                answer.status = "200";
+                answer.status = 200;
                 answer.text = "Успешно!";
                 return Ok(answer);
             }
             catch (Exception exception)
             {
-                answer.status = "500";
+                answer.status = 500;
                 answer.text = "Ошибка!";
                 return BadRequest(answer);
             }

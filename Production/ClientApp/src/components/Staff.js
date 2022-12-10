@@ -147,7 +147,8 @@ const App = () => {
                     'Content-Type': 'application/json;charset=utf-8',
                 },
                 body: JSON.stringify(OperationStaff)
-            }).then(window.location.reload())
+            })
+        window.location.reload();
     };
 
     const handleCancel = () => {

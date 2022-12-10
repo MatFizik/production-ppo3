@@ -39,13 +39,13 @@ public class FeedStockController : Controller
                 context.Feedstocks.Add(stock);
                 context.SaveChanges();
             }
-            answer.status = "200";
+            answer.status = 200;
             answer.text = "Успешно!";
             return Ok(answer);
         }
         catch (Exception exception)
         {
-            answer.status = "400";
+            answer.status = 400;
             answer.text = "Ошибка!";
             return BadRequest(answer);
         }
@@ -74,13 +74,13 @@ public class FeedStockController : Controller
 
                 context.SaveChanges();
             }
-            answer.status = "200";
+            answer.status = 200;
             answer.text = "Успешно!";
             return Ok(answer);
         }
         catch (Exception exception)
         {
-            answer.status = "500";
+            answer.status = 500;
             answer.text = "Ошибка!";
             return BadRequest(answer);
         }

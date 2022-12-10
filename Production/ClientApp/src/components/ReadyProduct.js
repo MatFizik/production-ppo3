@@ -42,7 +42,7 @@ const App = () => {
             key: 'measure',
         },
         {
-            title: 'Сумма',
+            title: 'Себестоимость',
             dataIndex: 'sum',
             key: 'sum',
         },
@@ -222,6 +222,11 @@ const App = () => {
                 dataIndex: 'count',
                 key: 'count',
             },
+            {
+                title: '',
+                dataIndex: 'measure',
+                key: 'measure',
+            }
         ];
         return <Table columns={columns} dataSource={ProductData.ingr} pagination={false} />;
     };
@@ -263,7 +268,7 @@ const App = () => {
             }
             {/*Добавление*/}
             <Modal
-                title="Добавление сырья"
+                title="Добавление калибра"
                 open={open}
                 onOk={handleOk}
                 confirmLoading={confirmLoading}
@@ -287,7 +292,7 @@ const App = () => {
                         <Form.Item label={"Кол-во"} name="count">
                             <Input/>
                         </Form.Item>
-                        <Form.Item label={"Сумма"} name="sum">
+                        <Form.Item label={"Себестоимость"} name="sum">
                             <Input/>
                         </Form.Item>
                     </Form>
@@ -296,7 +301,7 @@ const App = () => {
 
             {/*Изменение*/}
             <Modal
-                title="Изменение сырья"
+                title="Изменение информации о калибре"
                 open={openEdit}
                 onOk={handleOkEdit}
                 confirmLoading={confirmLoadingEdit}
@@ -320,7 +325,7 @@ const App = () => {
                     <Form.Item label={"Кол-во"} name="count">
                         <Input/>
                     </Form.Item>
-                    <Form.Item label={"Сумма"} name="sum">
+                    <Form.Item label={"Себестоимость"} name="sum">
                         <Input/>
                     </Form.Item>
                 </Form>

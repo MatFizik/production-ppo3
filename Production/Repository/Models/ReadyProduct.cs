@@ -25,6 +25,9 @@ public partial class ReadyProduct
 
     [Column("sum")]
     public double Sum { get; set; }
+    
+    [Column("cost")]
+    public double Cost { get; set; }
 
     [InverseProperty("ReadyProduct")]
     [JsonIgnore]

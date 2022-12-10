@@ -41,17 +41,22 @@ public class PurchaseStockController : Controller
         {
             using (ProdDbContext context = new ProdDbContext())
             {
+                Feedstock fs = context.Feedstocks.Find(stock.FeedstockId);
+                fs.Count = fs.Count + stock.Count;
+                fs.Sum = fs.Sum + stock.Sum;
+                Budget budget = context.Budgets.FirstOrDefault(x => x.Id == 1);
+                budget.Budget1 = budget.Budget1 - stock.Sum; 
                 context.PurchaseStocks.Add(stock);
                 context.SaveChanges();
             }
 
-            answer.status = "200";
+            answer.status = 200;
             answer.text = "Успешно!";
             return Ok(answer);
         }
         catch (Exception exception)
         {
-            answer.status = "400";
+            answer.status = 400;
             answer.text = "Ошибка!";
             return BadRequest(answer);
         }

@@ -44,13 +44,13 @@ public class BudgetController : Controller
                 
                 context.SaveChanges();
             }
-            answer.status = "200";
+            answer.status = 200;
             answer.text = "Успешно!";
             return Ok(answer);
         }
         catch (Exception exception)
         {
-            answer.status = "500";
+            answer.status = 500;
             answer.text = "Ошибка!";
             return BadRequest(answer);
         }

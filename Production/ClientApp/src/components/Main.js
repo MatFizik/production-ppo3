@@ -18,6 +18,7 @@ const Fdata = [];
 const Pdata = [];
 const DData = [];
 const SData = [];
+const RData = [];
 let OperationObj = "";
 let newRow = "";
 const reset = [];
@@ -28,6 +29,7 @@ const App = () => {
     const [DateData, setDateData] = useState({});
     const [StockData, setStockData] = useState({value: "", label: ""});
     const [budget, setBudget] = useState(false);
+    const [ReadyProd, setReadyProd] = useState(false);
 
     const [open, setOpen] = useState(false);
     const [openSale, setOpenSale] = useState(false);
@@ -170,11 +172,10 @@ const App = () => {
             return response.json()
         })
             .then(function (responseData) {
-
                 for (let i = 0; i < responseData.length; i++) {
                     DData[i] = {
                         key: responseData[i].id,
-                        productId: StockData[responseData[i].productId].label,
+                        productId: ReadyProd[responseData[i].productId].name,
                         count: responseData[i].count,
                         sum: responseData[i].sum,
                         date: responseData[i].date,
@@ -185,8 +186,8 @@ const App = () => {
             })
         setOpenSale(true);
     };
-    
-const discriptionDataforProd = async (dates) => {
+
+    const discriptionDataforProd = async (dates) => {
         await setDateData(reset);
         newRow = {
             date1: dates.date1.toJSON(),
@@ -207,7 +208,7 @@ const discriptionDataforProd = async (dates) => {
                 for (let i = 0; i < responseData.length; i++) {
                     DData[i] = {
                         key: responseData[i].id,
-                        productId: StockData[responseData[i].productId].label,
+                        productId: ReadyProd[responseData[i].productId].name,
                         count: responseData[i].count,
                         sum: responseData[i].sum,
                         date: responseData[i].date,
@@ -216,62 +217,85 @@ const discriptionDataforProd = async (dates) => {
                 }
                 setDateData(DData);
             })
-        setOpenSale(true);
+        setOpenProd(true);
     };
 
 
-    const NewData = (values) => {
-        OperationObj = {
-            feedstockId: values.feedstock,
-            count: values.count,
-            sum: values.sum,
-            date: values.date.toJSON(),
-            staffId: values.post1
+    const NewData = async (values) => {
+        if (budget.budget < values.sum) {
+            alert("Недостаточно средств");
+        } else {
+            OperationObj = {
+                feedstockId: values.feedstock,
+                count: values.count,
+                sum: values.sum,
+                date: values.date.toJSON(),
+                staffId: values.post1
+            }
+            await fetch("https://localhost:7171/PurchaseStock/AddPurchase",
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json;charset=utf-8',
+                    },
+                    body: JSON.stringify(OperationObj)
+                })
+            window.location.reload()
         }
-        fetch("https://localhost:7171/PurchaseStock/AddPurchase",
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json;charset=utf-8',
-                },
-                body: JSON.stringify(OperationObj)
-            }).then(window.location.reload())
     }
 
-    const NewDataforSale = (values) => {
-        OperationObj = {
-            productId: values.productId,
-            sum: values.sum,
-            date: values.date.toJSON(),
-            count: values.count,
-            staffId: values.post1,
+    const NewDataforSale = async (values) => {
+        if (ReadyProd[values.productId].count < values.count) {
+            alert("На складе нет столько патронов")
+        } else {
+            OperationObj = {
+                productId: ReadyProd[values.productId].id,
+                sum: values.sum,
+                date: values.date.toJSON(),
+                count: values.count,
+                staffId: values.post1,
+            }
+
+            await fetch("https://localhost:7171/SaleProduct/AddSale",
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json;charset=utf-8',
+                    },
+                    body: JSON.stringify(OperationObj)
+                })
+            window.location.reload()
         }
-        fetch("https://localhost:7171/SaleProduct/AddSale",
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json;charset=utf-8',
-                },
-                body: JSON.stringify(OperationObj)
-            }).then(window.location.reload())
     }
-    
-    const NewDataforProd = (values) => {
+
+    const NewDataforProd = async (values) => {
         OperationObj = {
-            productId: values.productId,
-            sum: values.sum,
+            productId: ReadyProd[values.productId].id,
             date: values.date.toJSON(),
             count: values.count,
             staffId: values.post1,
         }
-        fetch("https://localhost:7171/ProdProduct/AddProd",
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json;charset=utf-8',
-                },
-                body: JSON.stringify(OperationObj)
-            }).then(window.location.reload())
+        try {
+            await fetch("https://localhost:7171/ProdProduct/AddProd",
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json;charset=utf-8',
+                    },
+                    body: JSON.stringify(OperationObj)
+                }).then(function (response) {
+                return response.json()
+            }).then(function (responseData) {
+                console.log(responseData)
+                if(responseData.status != 200)
+                {
+                    alert(responseData.text);
+                }
+            window.location.reload()
+            });
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     useEffect(() => {
@@ -329,7 +353,7 @@ const discriptionDataforProd = async (dates) => {
                 }
                 setStockData(Fdata);
             });
-        fetch('https://localhost:7171/SaleProduct/GetSaleProduct', {
+        fetch('https://localhost:7171/ReadyProduct/GetReadyProduct', {
             headers: {
                 'Content-Type': 'application/json;charset=utf-8',
             },
@@ -340,11 +364,21 @@ const discriptionDataforProd = async (dates) => {
             .then(function (responseData) {
                 for (let i = 0; i < responseData.length; i++) {
                     SData[i] = {
-                        value: responseData[i].id,
-                        label: responseData[i].product.name
+                        value: i,
+                        label: responseData[i].name
+                    }
+                    RData[i] = {
+                        id: responseData[i].id,
+                        name: responseData[i].name,
+                        count: responseData[i].count,
+                        measure: responseData[i].measure.measure1,
+                        sum: responseData[i].sum,
+                        cost: responseData[i].cost,
+                        ingr: []
                     }
                 }
                 setSaleProductData(SData);
+                setReadyProd(RData)
 
             });
         setTimeout(() => {
@@ -390,14 +424,11 @@ const discriptionDataforProd = async (dates) => {
                                         <Col span={12}>
                                             <Card>
                                                 <Statistic
-                                                    title="Idle"
-                                                    value={9.3}
-                                                    precision={2}
+                                                    title="Разница"
+                                                    value={budget.budget - 200000}
                                                     valueStyle={{
-                                                        color: '#cf1322',
+                                                        color: 'gray',
                                                     }}
-                                                    prefix={<ArrowDownOutlined/>}
-                                                    suffix="%"
                                                 />
                                             </Card>
                                         </Col>
@@ -422,9 +453,6 @@ const discriptionDataforProd = async (dates) => {
                                                 </Select>
                                             </Form.Item>
                                             <Form.Item label={"Кол-во"} name="count">
-                                                <Input/>
-                                            </Form.Item>
-                                            <Form.Item label={"Сумма"} name="sum">
                                                 <Input/>
                                             </Form.Item>
                                             <Form.Item label={"Дата"} name="date">
@@ -480,9 +508,6 @@ const discriptionDataforProd = async (dates) => {
                                             <Form.Item label={"Кол-во"} name="count">
                                                 <Input/>
                                             </Form.Item>
-                                            <Form.Item label={"Сумма"} name="sum">
-                                                <Input/>
-                                            </Form.Item>
                                             <Form.Item label={"Дата"} name="date">
                                                 <DatePicker/>
                                             </Form.Item>
@@ -530,13 +555,10 @@ const discriptionDataforProd = async (dates) => {
                                             initialValues={RowData}
                                         >
                                             <Form.Item label={"Калибр"} name="productId">
-                                                <Select options={ProdProductData}>
+                                                <Select options={SaleProductData}>
                                                 </Select>
                                             </Form.Item>
                                             <Form.Item label={"Кол-во"} name="count">
-                                                <Input/>
-                                            </Form.Item>
-                                            <Form.Item label={"Сумма"} name="sum">
                                                 <Input/>
                                             </Form.Item>
                                             <Form.Item label={"Дата"} name="date">
@@ -616,13 +638,15 @@ const discriptionDataforProd = async (dates) => {
                     <Button onClick={handleClose}>Close</Button>
                 </DialogActions>
             </Dialog>
+
+            
             <Dialog
                 fullWidth={fullWidth}
                 maxWidth={maxWidth}
                 open={openProd}
                 onClose={handleClose}
             >
-                <DialogTitle>Отчет по продажам</DialogTitle>
+                <DialogTitle>Отчет по производству патронов</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
                         <Table

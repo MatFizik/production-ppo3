@@ -38,20 +38,28 @@ public class SaleProductController : Controller
         {
             using (ProdDbContext context = new ProdDbContext())
             {
+                ReadyProduct rp = context.ReadyProducts.Find(product.ProductId);
+                rp.Count = rp.Count - product.Count;
+                Budget budget = context.Budgets.FirstOrDefault(x => x.Id == 1);
+                budget.Budget1 = budget.Budget1 + (rp.Sum*product.Count);
                 context.SaleProducts.Add(product);
                 context.SaveChanges();
             }
-            answer.status = "200";
+            answer.status = 200;
             answer.text = "Успешно!";
             return Ok(answer);
         }
         catch (Exception exception)
         {
-            answer.status = "400";
+            answer.status = 400;
             answer.text = "Ошибка!";
             return BadRequest(answer);
         }
     }
+    
+    
+    
+    
     [HttpPost]
     [Route("[controller]/GetSaleDate")]
     public async Task<ActionResult<List<PurchaseStock>>> GetPStockDate([FromBody] Dates model)
